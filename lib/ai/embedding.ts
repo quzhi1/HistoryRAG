@@ -9,7 +9,7 @@ const embeddingModel = openai.embedding('text-embedding-ada-002');
 const generateChunks = (input: string): string[] => {
   return input
     .trim()
-    .split('.')
+    .split(/[。.]/)
     .filter(i => i !== '');
 };
 
@@ -40,7 +40,11 @@ export const findRelevantContent = async (userQuery: string) => {
     userQueryEmbedded,
   )})`;
   const similarGuides = await db
-    .select({ name: embeddings.content, similarity })
+    .select({ 
+      content: embeddings.content, 
+      resourceId: embeddings.resourceId,
+      similarity 
+    })
     .from(embeddings)
     .where(gt(similarity, 0.5))
     .orderBy(t => desc(t.similarity))

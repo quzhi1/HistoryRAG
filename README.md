@@ -1,10 +1,24 @@
-# Vercel AI SDK RAG Guide Starter Project
+# HistoryRag 拉个史
 
-This is the starter project for the Vercel AI SDK [Retrieval-Augmented Generation (RAG) guide](https://sdk.vercel.ai/docs/guides/rag-chatbot).
+这是一个人工智能史料查询工具。用户可以本地部署，上传史料，然后问关于史料的问题。
 
-In this project, you will build a chatbot that will only respond with information that it has within its knowledge base. The chatbot will be able to both store and retrieve information. This project has many interesting use cases from customer support through to building your own second brain!
+## 本地部署条件
+1. 需要有一个本地或者远程PostgreSQL。
+2. 需要有一个OpenAI的API key。
 
-This project will use the following stack:
+## 第一次本地部署
+`./install.sh`
+
+安装过程中，请依次输入你的PostgreSQL URL和OpenAI API key
+
+## 本地运行
+`pnpm run dev`
+
+## 常见问题
+### 怎么看数据库的数据？
+`pnpm db:studio`
+
+## 本地部署
 
 - [Next.js](https://nextjs.org) 14 (App Router)
 - [Vercel AI SDK](https://sdk.vercel.ai/docs)
