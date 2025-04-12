@@ -12,6 +12,14 @@ export function FileUpload() {
   const [processedItems, setProcessedItems] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  const resetState = () => {
+    setIsUploading(false);
+    setProgress(0);
+    setTotalItems(0);
+    setProcessedItems(0);
+    abortControllerRef.current = null;
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -20,6 +28,7 @@ export function FileUpload() {
     setIsUploading(true);
     setProgress(0);
     setProcessedItems(0);
+    setTotalItems(0);
     abortControllerRef.current = new AbortController();
 
     const formData = new FormData();
@@ -38,18 +47,40 @@ export function FileUpload() {
         throw new Error('Upload failed');
       }
 
-      const data = await response.json();
-      console.log('Upload completed:', data);
-
-      if (data.success) {
-        setProcessedItems(data.processed);
-        setTotalItems(data.total);
-        setProgress(100);
-        toast.success(`Successfully processed ${data.processed} items`);
-      } else {
-        toast.error(data.error || 'Error uploading file');
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
       }
 
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = new TextDecoder().decode(value);
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = JSON.parse(line.slice(6));
+            console.log('Received data:', data);
+
+            if (data.type === 'progress') {
+              setProcessedItems(data.processed);
+              setTotalItems(data.total);
+              setProgress((data.processed / data.total) * 100);
+            } else if (data.type === 'complete') {
+              setProcessedItems(data.processed);
+              setTotalItems(data.total);
+              setProgress(100);
+              toast.success(`Successfully processed ${data.processed} items`);
+              setTimeout(resetState, 2000);
+            } else if (data.type === 'error') {
+              toast.error(data.error || 'Error uploading file');
+              resetState();
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Upload error:', error);
       if (error instanceof Error && error.name === 'AbortError') {
@@ -57,11 +88,7 @@ export function FileUpload() {
       } else {
         toast.error('Error uploading file');
       }
-    } finally {
-      setIsUploading(false);
-      setProgress(0);
-      setProcessedItems(0);
-      abortControllerRef.current = null;
+      resetState();
     }
   };
 
@@ -98,7 +125,7 @@ export function FileUpload() {
           </Button>
         )}
       </div>
-      {isUploading && (
+      {(isUploading || progress > 0) && (
         <div className="w-full max-w-md space-y-2">
           <Progress value={progress} className="w-full" />
           <p className="text-sm text-center text-gray-500">

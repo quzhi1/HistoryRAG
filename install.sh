@@ -41,4 +41,8 @@ pnpm db:push
 echo "🤖 Installing AI dependencies..."
 pnpm add ai @ai-sdk/react @ai-sdk/openai @radix-ui/react-progress
 
+# Install test dependencies
+echo "🧪 Installing test dependencies..."
+pnpm add -D @types/jest jest ts-jest @jest/globals babel-jest @babel/core @babel/preset-env @babel/plugin-transform-runtime crypto-browserify
+
 echo "✨ Installation complete! You can now start the development server with 'pnpm dev'" 

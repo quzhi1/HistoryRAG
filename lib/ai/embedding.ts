@@ -9,9 +9,12 @@ const embeddingModel = openai.embedding('text-embedding-ada-002');
 const generateChunks = (input: string): string[] => {
   return input
     .trim()
-    .split(/[。.]/)
-    .filter(i => i !== '');
+    .split(/[。！？!?]/)
+    .filter(i => i.trim().length > 0)
+    .map(i => i.trim());
 };
+
+export { generateChunks };
 
 export const generateEmbeddings = async (
   value: string,
