@@ -19,12 +19,18 @@ export { generateChunks };
 export const generateEmbeddings = async (
   value: string,
 ): Promise<Array<{ embedding: number[]; content: string }>> => {
+  // console.log('Original text:', value);
   const chunks = generateChunks(value);
+  // console.log('Number of chunks:', chunks.length);
+  // console.log('Chunks:', chunks);
   const { embeddings } = await embedMany({
     model: embeddingModel,
     values: chunks,
   });
-  return embeddings.map((e, i) => ({ content: chunks[i], embedding: e }));
+  // console.log('Number of embeddings:', embeddings.length);
+  const result = embeddings.map((e, i) => ({ content: chunks[i], embedding: e }));
+  // console.log('Final result:', result.map(r => r.content));
+  return result;
 };
 
 export const generateEmbedding = async (value: string): Promise<number[]> => {

@@ -15,21 +15,24 @@ export const createResource = async (input: NewResourceParams) => {
 
     const [resource] = await db
       .insert(resources)
-      .values({ content })
+      .values({ 
+        content,
+        source: 'user_input', // Default value
+        chapter: 'default'    // Default value
+      })
       .returning();
 
     const embeddings = await generateEmbeddings(content);
-    await db.insert(embeddingsTable).values(
-      embeddings.map(embedding => ({
+    for (const embedding of embeddings) {
+      await db.insert(embeddingsTable).values({
         resourceId: resource.id,
         ...embedding,
-      })),
-    );
+      });
+    }
 
     return 'Resource successfully created and embedded.';
   } catch (error) {
-    return error instanceof Error && error.message.length > 0
-      ? error.message
-      : 'Error, please try again.';
+    console.error('Error creating resource:', error);
+    throw error;
   }
 };

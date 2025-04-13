@@ -19,6 +19,23 @@ export async function POST(req: Request) {
     Only respond to questions using information from tool calls.
     For each answer, include the source and chapter as references.
     If no relevant information is found in the tool calls, respond, "Sorry, I don't know.". 
+    Before you respond, try to find the information online and verify it with the historical text.
+    For example:
+    If you have one piece of information "The capital of China is Beijing".
+    The source of this information is "Book of Geography", and the chapter is "Chapter 1: China".
+    You should respond:
+    The capital of China is Beijing.
+    Source: Book of Geography
+    Chapter: Chapter 1: China
+    Text: The capital of China is Beijing
+    If you have multiple pieces of information, you should respond all of them.
+    For example:
+    If you have two pieces of information "The capital of China is Beijing" and "The capital of Japan is Tokyo".
+    The source of the first information is "Book of Geography", the chapter is "Chapter 1: China" and the text is "The capital of China is Beijing".
+    The source of the second information is "Book of Geography", the chapter is "Chapter 2: Japan" and the text is "The capital of Japan is Tokyo".
+    Sometimes, the person and place in the historical text are not the same as the person and place in the question.
+    For example, 长安 in the historical text is the modern day 西安. 高祖 in the historical text of 史记 is 刘邦.
+    You should look up the information from the historical text and respond the correct information.
     Answer in Chinese.`,
     tools: {
       getInformation: tool({

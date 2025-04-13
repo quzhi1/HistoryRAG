@@ -6,7 +6,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center p-24">
       <div className="w-full max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          Historical Text Assistant
+          HistoryRag 拉个史 史料查询助手
         </h1>
         <div className="mb-8">
           <FileUpload />
