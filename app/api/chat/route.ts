@@ -1,10 +1,12 @@
 import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { findRelevantContent } from '@/lib/ai/embedding';
 import { db } from '@/lib/db';
 import { resources } from '@/lib/db/schema/resources';
 import { sql } from 'drizzle-orm';
+import { env } from '@/lib/env.mjs';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -12,8 +14,17 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
+  const localOpenAI = createOpenAI({
+    baseURL: env.LOCAL_MODEL_BASE_URL,
+    apiKey: 'not-needed',
+  });
+
+  const model = env.USE_LOCAL_MODEL
+    ? localOpenAI(env.LOCAL_CHAT_MODEL)
+    : openai('gpt-4o');
+
   const result = streamText({
-    model: openai('gpt-4o'),
+    model,
     messages,
     system: `You are a helpful assistant that answers questions based on historical texts.
     Only respond to questions using information from tool calls.
