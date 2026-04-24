@@ -1,10 +1,18 @@
 import { embed, embedMany } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { db } from '../db';
 import { cosineDistance, desc, gt, sql } from 'drizzle-orm';
 import { embeddings } from '../db/schema/embeddings';
+import { env } from '../env.mjs';
 
-const embeddingModel = openai.embedding('text-embedding-ada-002');
+const localOpenAI = createOpenAI({
+  baseURL: env.LOCAL_MODEL_BASE_URL,
+  apiKey: 'not-needed',
+});
+
+const embeddingModel = env.USE_LOCAL_MODEL
+  ? localOpenAI.embedding(env.LOCAL_EMBEDDING_MODEL)
+  : openai.embedding('text-embedding-ada-002');
 
 const generateChunks = (input: string): string[] => {
   return input
@@ -44,10 +52,14 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
 
 export const findRelevantContent = async (userQuery: string) => {
   const userQueryEmbedded = await generateEmbedding(userQuery);
-  const similarity = sql<number>`1 - (${cosineDistance(
-    embeddings.embedding,
-    userQueryEmbedded,
-  )})`;
+  const queryDimensions = userQueryEmbedded.length;
+  const similarity = sql<number>`
+    CASE
+      WHEN vector_dims(${embeddings.embedding}) = ${queryDimensions}
+      THEN 1 - (${cosineDistance(embeddings.embedding, userQueryEmbedded)})
+      ELSE NULL
+    END
+  `;
   const similarGuides = await db
     .select({ 
       content: embeddings.content, 

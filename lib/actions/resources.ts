@@ -8,6 +8,7 @@ import {
 import { db } from '../db';
 import { generateEmbeddings } from '../ai/embedding';
 import { embeddings as embeddingsTable } from '../db/schema/embeddings';
+import { ensureFlexibleEmbeddingsColumn } from '../db/ensure-flexible-embeddings';
 
 export const createResource = async (input: NewResourceParams) => {
   try {
@@ -21,6 +22,8 @@ export const createResource = async (input: NewResourceParams) => {
         chapter: 'default'    // Default value
       })
       .returning();
+
+    await ensureFlexibleEmbeddingsColumn();
 
     const embeddings = await generateEmbeddings(content);
     for (const embedding of embeddings) {

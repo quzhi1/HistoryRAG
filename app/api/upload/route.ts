@@ -3,6 +3,7 @@ import { db, testConnection } from '@/lib/db';
 import { resources } from '@/lib/db/schema/resources';
 import { generateEmbeddings } from '@/lib/ai/embedding';
 import { embeddings } from '@/lib/db/schema/embeddings';
+import { ensureFlexibleEmbeddingsColumn } from '@/lib/db/ensure-flexible-embeddings';
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +16,8 @@ export async function POST(req: Request) {
         error: 'Database connection failed' 
       }, { status: 500 });
     }
+
+    await ensureFlexibleEmbeddingsColumn();
 
     const formData = await req.formData();
     const file = formData.get('file') as File;

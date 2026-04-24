@@ -4,12 +4,39 @@
 
 ## 本地部署条件
 1. 需要有一个本地或者远程PostgreSQL。
-2. 需要有一个OpenAI的API key。
+2. 需要选择一种模型方式：
+  - OpenAI（需要 `OPENAI_API_KEY`）
+  - 本地模型（推荐 Ollama）
 
 ## 第一次本地部署
 `./install.sh`
 
-安装过程中，请依次输入你的PostgreSQL URL和OpenAI API key
+安装过程中会先输入 PostgreSQL URL，然后选择是否使用本地模型：
+
+- `USE_LOCAL_MODEL=yes`：使用本地模型（默认）
+- `USE_LOCAL_MODEL=no`：使用 OpenAI
+
+如果使用本地模型，会继续配置：
+
+- `LOCAL_MODEL_BASE_URL`（默认 `http://localhost:11434/v1`）
+- `LOCAL_CHAT_MODEL`（默认 `qwen3:8b`）
+- `LOCAL_EMBEDDING_MODEL`（默认 `qwen3-embedding`）
+
+并且请先拉取模型：
+
+`ollama pull qwen3:8b`
+
+`ollama pull qwen3-embedding`
+
+如果使用 OpenAI，需要在 `.env` 中设置：
+
+- `USE_LOCAL_MODEL=no`
+- `OPENAI_API_KEY=...`
+
+如果你更换了 embedding 模型维度，请同步设置：
+
+- `EMBEDDING_DIMENSIONS=<你的 embedding 向量维度>`（例如 `768`、`1024`、`1536`）
+⚠️ 注意：`pgvector`不支持2000以上的dimensions
 
 ## 本地运行
 `pnpm run dev`

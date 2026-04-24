@@ -8,6 +8,20 @@
       "when": 1719997972944,
       "tag": "0000_yielding_bloodaxe",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1720000000000,
+      "tag": "0001_add_source_chapter",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720000000001,
+      "tag": "0002_flexible_vectors",
+      "breakpoints": true
     }
   ]
 }
